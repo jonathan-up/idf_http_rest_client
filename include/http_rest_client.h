@@ -41,6 +41,7 @@ esp_err_t http_rest_client_init_cert(char *cert, size_t cert_len);
 esp_err_t http_rest_client_deinit_cert(void);
 
 esp_err_t http_rest_client_get(char *url, http_rest_recv_buffer_t *http_rest_recv_buffer);
+esp_err_t http_rest_client_get_with_auth(char *url, http_rest_recv_buffer_t *http_rest_recv_buffer, char *authString);
 esp_err_t http_rest_client_delete(char *url, http_rest_recv_buffer_t *http_rest_recv_buffer);
 esp_err_t http_rest_client_post(char *url, char *body_data, http_rest_recv_buffer_t *http_rest_recv_buffer);
 esp_err_t http_rest_client_put(char *url, char *body_data, http_rest_recv_buffer_t *http_rest_recv_buffer);

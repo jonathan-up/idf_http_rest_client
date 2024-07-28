@@ -76,6 +76,53 @@ cleanup:
   return ret;
 }
 
+esp_err_t http_rest_client_get_json_with_auth(char *url, http_rest_recv_json_t *http_rest_recv_json, char *authString)
+{
+  esp_err_t ret = ESP_OK;
+
+  http_rest_recv_buffer_t http_rest_recv_buffer;
+
+  ret = http_rest_client_get_with_auth(url, &http_rest_recv_buffer, authString);
+
+  if (ESP_OK != ret)
+  {
+    ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  if (http_rest_recv_buffer.status_code >= 300)
+  {
+    ESP_LOGE(TAG, "HTTP GET request failed with status code %d", http_rest_recv_buffer.status_code);
+    return ESP_FAIL;
+  }
+
+  ESP_LOGD(TAG, "Parsing JSON");
+
+  cJSON *json = cJSON_Parse((char *)http_rest_recv_buffer.buffer);
+
+  if (json == NULL)
+  {
+    const char *error_ptr = cJSON_GetErrorPtr();
+    if (error_ptr != NULL)
+    {
+      ESP_LOGE(TAG, "Error before: %s", error_ptr);
+    }
+    ret = ESP_FAIL;
+    goto cleanup;
+  }
+
+  http_rest_recv_json->json = json;
+  http_rest_recv_json->status_code = http_rest_recv_buffer.status_code;
+
+  ESP_LOGD(TAG, "JSON parsed");
+
+  goto cleanup;
+
+cleanup:
+  http_rest_client_cleanup(&http_rest_recv_buffer);
+  return ret;
+}
+
 esp_err_t http_rest_client_delete_json(char *url, http_rest_recv_json_t *http_rest_recv_json)
 {
   esp_err_t ret = ESP_OK;
